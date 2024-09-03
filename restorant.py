@@ -22,22 +22,7 @@ class Aplicacion(ctk.CTk):
         
         label_menu = ctk.CTkLabel(tab_menu, text="Bienvenido al Menú")
         label_menu.pack(pady=20, padx=20)
-        
-        boton_agregar_menu = ctk.CTkButton(tab_menu, text="Agregar menu", command=self.agregar_menu)
-        boton_agregar_menu.pack(pady=10)
-        
-        boton_eliminar_menu = ctk.CTkButton(tab_menu, text="Eliminar menu", command=self.eliminar_menu)
-        boton_eliminar_menu.pack(pady=10)
-        
-        self.lista_menus = ctk.CTkTextbox(tab_menu, width=400, height=200)
-        self.lista_menus.pack(pady=10)
-        self.lista_menus.insert("end", "menu disponible: Papas fritas, pepsi, completo, hambirguesa")
-        
-    def agregar_menu(self):
-        self.lista_menus.insert("end", "\nNuevo menu añadido") 
-    
-    def eliminar_menu(self):
-        self.lista_menus.delete("1.0", "end")       
+
 
 root = tk.Tk()
 
