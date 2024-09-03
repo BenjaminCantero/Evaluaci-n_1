@@ -6,7 +6,7 @@ class Interfaz:
     def __init__(self, controlador):
         self.controlador = controlador
         self.root = ctk.CTk()  # Creamos la ventana principal
-        self.root.geometry("600x400")  # Tamaño de la ventana
+        self.root.geometry("800x600")  # Tamaño de la ventana
         self.root.title("Gestión de Ingredientes y Pedidos")
         
         # Crear Tabview (Control de pestañas)
@@ -59,11 +59,11 @@ class Interfaz:
 
         # Botón para eliminar ingrediente
         boton_eliminar = ctk.CTkButton(tab_ingredientes, text="Eliminar Ingrediente", command=self.eliminar_ingrediente)
-        boton_eliminar.grid(row=0, column=2, padx=10, pady=10, sticky="e")
+        boton_eliminar.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
 
         # Botón para generar menú
         boton_generar_menu = ctk.CTkButton(tab_ingredientes, text="Generar Menú", command=self.generar_menu)
-        boton_generar_menu.grid(row=4, column=0, columnspan=2, pady=10)
+        boton_generar_menu.grid(row=4, column=1, columnspan=2, pady=10, sticky="s")
 
     def crear_pestana_pedidos(self):
         # Pestaña de Pedido
