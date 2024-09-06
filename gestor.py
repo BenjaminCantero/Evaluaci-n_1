@@ -1,5 +1,3 @@
-# controllers.py
-
 from models import Ingrediente, Menu, Pedido
 
 class Controlador:
