@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from tkinter import ttk
+from PIL import Image, ImageTk
+
 
 class Interfaz:
     def __init__(self, controlador):
@@ -15,7 +17,7 @@ class Interfaz:
         
         # Crear las pestañas
         self.crear_pestana_ingredientes()
-        self.crear_pestana_pedidos()
+        self.crear_pedidos()
 
         # Iniciar el loop de la interfaz gráfica
         self.root.mainloop()
@@ -68,13 +70,48 @@ class Interfaz:
         boton_generar_menu = ctk.CTkButton(frame_derecho, text="Generar Menú", command=self.generar_menu)
         boton_generar_menu.pack(pady=10)
 
-    def crear_pestana_pedidos(self):
-        # Pestaña de Pedido
+    def crear_pedidos(self):
         tab_pedidos = self.tab_control.add("Pedido")
+        
+        frame_productos = ctk.CTkFrame(tab_pedidos)
+        frame_productos.pack(pady=20)
+        
+        productos = {
+            "Papas Fritas": "icons/papas_fritas.png",
+            "completo": "icons/completo.png",
+            "hamburguesa": "icons/hamburguesa.png",
+            "pepsi": "icons/pepsi.png",
+        }
+        
+        
+        self.imagenes_productos = {}
+        
+        for producto, img_file in productos.items():
+            try:
+                pill_image = Image.open(img_file)
+                imagen = ImageTk.PhotoImage(pill_image)
+                self.imagenes_productos[producto] = imagen
+                
+                boton_productos = ctk.CTkButton(
+                    frame_productos,
+                    image= imagen,
+                    text=producto,
+                    compound="top",
+                    command=lambda p=producto: self.agregar_producto(p)
+                )
+                boton_productos.pack(side= "left", padx= 10, pady= 10)
+            except Exception as e:
+                print(f"Error al cargar la imagen {img_file}: {e}")
+                
+        self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
+        self.treeview_pedidos.heading("Producto", text="Producto")
+        self.treeview_pedidos.heading("Cantidad", text="Cantidad")
+        self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
+        self.treeview_pedidos.pack(pady=10, padx=10, fill= "both", expand=True)
 
-        # Agregamos la lógica de la pestaña de pedidos
-        label_info = ctk.CTkLabel(tab_pedidos, text="Aquí irán los pedidos.")
-        label_info.pack(pady=20)
+        def generar_boleta(self):
+            messagebox.showinfo("Generar Boleta", "Función no implementada aún")
+
 
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
