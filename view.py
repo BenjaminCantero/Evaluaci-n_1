@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 
 
 class Interfaz:
@@ -69,39 +69,58 @@ class Interfaz:
         # Botón para generar menú
         boton_generar_menu = ctk.CTkButton(frame_derecho, text="Generar Menú", command=self.generar_menu)
         boton_generar_menu.pack(pady=10)
-
+        
+    def agregar_producto(self, producto, precio):
+        for item in self.treeview_pedidos.get_children():
+            values = self.treeview_pedidos.item(item, "values")
+            if values[0] == producto:
+                cantidad_actual = int(values[1])
+                nueva_cantidad = cantidad_actual + 1
+                self.treeview_pedidos.item(item, values=(producto, nueva_cantidad, precio))      
+                return
+            
+        cantidad = 1
+        self.treeview_pedidos.insert("", "end", values=(producto, cantidad, precio))
+        
     def crear_pedidos(self):
         tab_pedidos = self.tab_control.add("Pedido")
         
-        frame_productos = ctk.CTkFrame(tab_pedidos)
+        
+        frame_productos = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
         frame_productos.pack(pady=20)
         
-        productos = {
-            "Papas Fritas": "icons/papas_fritas.png",
-            "completo": "icons/completo.png",
-            "hamburguesa": "icons/hamburguesa.png",
-            "pepsi": "icons/pepsi.png",
+        self.productos = {
+            "Papas Fritas": ("icons/papas_fritas.png", 500),
+            "completo": ("icons/completo.png", 1800),
+            "hamburguesa": ("icons/hamburguesa.png", 3500),
+            "pepsi": ("icons/pepsi.png", 1100),
         }
         
         
         self.imagenes_productos = {}
-        
-        for producto, img_file in productos.items():
+        for producto, (img_file, precio) in self.productos.items():
             try:
-                pill_image = Image.open(img_file)
-                imagen = ImageTk.PhotoImage(pill_image)
-                self.imagenes_productos[producto] = imagen
+                pill_image = Image.open(img_file).convert("RGBA")
+                background = Image.new('RGBA', pill_image.size, (0, 0, 0, 0))
+                imagen_transparente = Image.alpha_composite(background, pill_image)               
+                imagen_borde = ImageOps.expand(imagen_transparente, border=1, fill="red")
+                imagen = ImageTk.PhotoImage(imagen_borde)
                 
+                self.imagenes_productos[producto] = imagen
+            
+            # Crear el botón de producto con la imagen
                 boton_productos = ctk.CTkButton(
                     frame_productos,
-                    image= imagen,
-                    text=producto,
+                    image=imagen,
+                    text=f"{producto}",
                     compound="top",
-                    command=lambda p=producto: self.agregar_producto(p)
+                    fg_color="transparent",  # Establecer color de fondo transparente
+                    command=lambda p=producto, pr=precio: self.agregar_producto(p, pr),
                 )
-                boton_productos.pack(side= "left", padx= 10, pady= 10)
+                boton_productos.pack(side="left", padx=10, pady=10)
             except Exception as e:
                 print(f"Error al cargar la imagen {img_file}: {e}")
+        
                 
         self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
         self.treeview_pedidos.heading("Producto", text="Producto")
@@ -111,6 +130,7 @@ class Interfaz:
 
         def generar_boleta(self):
             messagebox.showinfo("Generar Boleta", "Función no implementada aún")
+    
 
 
     def ingresar_ingrediente(self):
