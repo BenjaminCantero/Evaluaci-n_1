@@ -1,5 +1,3 @@
-# controllers.py
-
 from models import Ingrediente, Menu, Pedido
 
 class Controlador:
@@ -9,8 +7,13 @@ class Controlador:
         self.pedido_actual = Pedido()
 
     def agregar_ingrediente(self, nombre, cantidad):
-        # Lógica para agregar o actualizar ingredientes
-        pass
+        for ingrediente in self.stock_ingredientes:
+            if ingrediente.nombre == nombre:
+                ingrediente.cantidad += cantidad
+                return
+        nuevo_ingrediente = Ingrediente(nombre, cantidad)
+        self.stock_ingredientes.append(nuevo_ingrediente)
+
 
     def eliminar_ingrediente(self, nombre):
         # Lógica para eliminar ingredientes
