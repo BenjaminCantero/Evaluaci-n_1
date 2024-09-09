@@ -55,7 +55,7 @@ class Interfaz:
         frame_derecho = ctk.CTkFrame(tab_ingredientes)
         frame_derecho.pack(side="right", padx=10, pady=10, fill="y", expand=True)
 
-        #boton eliminar ingrediente
+        # Botón eliminar ingrediente
         boton_eliminar = ctk.CTkButton(frame_derecho, text="Eliminar Ingrediente", command=self.eliminar_ingrediente)
         boton_eliminar.pack(pady=10)
         # Lista (Treeview) de ingredientes
@@ -132,6 +132,14 @@ class Interfaz:
         boton_generar_boleta = ctk.CTkButton(tab_pedidos, text="Generar boleta", command=self.generar_boleta)
         boton_generar_boleta.pack(pady=10)
 
+        # Boton para eliminar pedido seleccionado
+        boton_eliminar_seleccionado = ctk.CTkButton(tab_pedidos, text="Eliminar Pedido Seleccionado", command=self.eliminar_pedido_seleccionado)
+        boton_eliminar_seleccionado.pack(pady=5)
+
+        # Boton para eliminar todos los pedidos
+        boton_eliminar_todos = ctk.CTkButton(tab_pedidos, text="Eliminar Todos los Pedidos", command=self.eliminar_todos_pedidos)
+        boton_eliminar_todos.pack(pady=5)
+        
 
     def generar_boleta(self):
         # Obtener los productos y sus cantidades del Treeview
@@ -177,6 +185,24 @@ class Interfaz:
         ingrediente_nombre = self.treeview_ingredientes.item(selected_item, "values")[0]
         self.controlador.eliminar_ingrediente(ingrediente_nombre)
         self.treeview_ingredientes.delete(selected_item)
+    
+    def eliminar_pedido_seleccionado(self):
+        selected_item = self.treeview_pedidos.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Advertencia", "Por favor selecciona un pedido para eliminar.")
+            return
+
+        self.treeview_pedidos.delete(selected_item)
+
+    def eliminar_todos_pedidos(self):
+        if not self.treeview_pedidos.get_children():
+            messagebox.showwarning("Advertencia", "No hay pedidos para eliminar.")
+            return
+
+        confirm = messagebox.askyesno("Confirmar", "¿Estás seguro de que deseas eliminar todos los pedidos?")
+        if confirm:
+            self.treeview_pedidos.delete(*self.treeview_pedidos.get_children())
 
     def generar_menu(self):
         # Diccionario de recetas predefinidas con los ingredientes necesarios
@@ -221,4 +247,3 @@ class Interfaz:
                 menu = "no hay ingredientes disponibles para sugerir ningun plato."
 
         messagebox.showinfo("menu generado", menu)
-
