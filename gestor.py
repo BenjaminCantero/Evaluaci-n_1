@@ -5,7 +5,7 @@ class Gestor:
         self.pedido_actual = []
 
     def agregar_ingrediente(self, nombre, cantidad):
-        # Aquí agregas el ingrediente a la lista
+        # Agrega el ingrediente a la lista
         self.ingredientes.append({'nombre': nombre, 'cantidad': cantidad})
 
     def eliminar_ingrediente(self, nombre):
@@ -15,3 +15,7 @@ class Gestor:
     def agregar_pedido(self, producto, cantidad, precio):
         # Añade un producto al pedido actual
         self.pedido_actual.append({'producto': producto, 'cantidad': cantidad, 'precio': precio})
+
+    def obtener_ingredientes(self):
+        # Retorna la lista de ingredientes
+        return self.ingredientes

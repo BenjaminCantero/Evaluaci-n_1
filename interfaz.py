@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from PIL import Image, ImageTk, ImageOps
-from tkinter import messagebox
+import validaciones as val
 
 class Interfaz:
     def __init__(self, controlador):
@@ -124,8 +124,6 @@ class Interfaz:
         self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
         self.treeview_pedidos.pack(pady=10, padx=10, fill="both", expand=True)
 
-
-        
         # Botón para generar boleta
         boton_generar_boleta = ctk.CTkButton(frame_botones, text="Generar Boleta", command=self.generar_boleta)
         boton_generar_boleta.pack(side="right", padx=10)
@@ -158,35 +156,37 @@ class Interfaz:
             total += float(self.treeview_pedidos.item(item, "values")[3])
         self.label_total.configure(text=f"Total: ${total:.2f}")
 
+    def generar_boleta(self):
+        # Código para generar boleta
+        pass
+
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
         cantidad = self.entry_cantidad.get()
-        if self.controlador.validar_ingrediente(nombre, cantidad):
-            self.controlador.agregar_ingrediente(nombre, int(cantidad))
-            # Actualiza la interfaz
-            self.actualizar_treeview_ingredientes()
-        else:
-            messagebox.showerror("Error", "Validación fallida.")
+        
+        # Validar datos
+        resultado_validacion_nombre = val.validar_nombre(nombre)
+        resultado_validacion_cantidad = val.validar_cantidad(cantidad)
+        
+        if resultado_validacion_nombre:
+            messagebox.showerror("Error", resultado_validacion_nombre)
+            return
+        
+        if resultado_validacion_cantidad:
+            messagebox.showerror("Error", resultado_validacion_cantidad)
+            return
+        
+        # Verificar si el ingrediente ya está en la lista
+        for item in self.treeview_ingredientes.get_children():
+            values = self.treeview_ingredientes.item(item, "values")
+            if values[0] == nombre:
+                messagebox.showwarning("Advertencia", "El ingrediente ya está en la lista.")
+                return
+        
+        # Si no hay errores, continuar con el ingreso del ingrediente
+        self.treeview_ingredientes.insert("", "end", values=(nombre, cantidad))
 
     def eliminar_ingrediente(self):
         seleccionado = self.treeview_ingredientes.selection()
         if seleccionado:
-            nombre = self.treeview_ingredientes.item(seleccionado)['values'][0]
-            self.controlador.eliminar_ingrediente(nombre)
-            # Actualiza la interfaz
-            self.actualizar_treeview_ingredientes()
-
-    def generar_menu(self):
-        # Lógica para generar un menú
-        pass
-
-    def generar_boleta(self):
-        self.controlador.generar_boleta()
-        
-    def actualizar_treeview_ingredientes(self):
-        # Limpia el Treeview
-        for item in self.treeview_ingredientes.get_children():
-            self.treeview_ingredientes.delete(item)
-        # Inserta los datos desde el controlador
-        for ingrediente in self.controlador.obtener_ingredientes():
-            self.treeview_ingredientes.insert("", "end", values=(ingrediente[0], ingrediente[1])) 
+            self.treeview_ingredientes.delete(seleccionado)
