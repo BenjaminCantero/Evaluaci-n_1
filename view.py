@@ -127,11 +127,32 @@ class Interfaz:
         self.treeview_pedidos.heading("Cantidad", text="Cantidad")
         self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
         self.treeview_pedidos.pack(pady=10, padx=10, fill= "both", expand=True)
+	
+        # Boton para generar boleta
+        boton_generar_boleta = ctk.CTkButton(tab_pedidos, text="Generar boleta", command=self.generar_boleta)
+        boton_generar_boleta.pack(pady=10)
 
-        def generar_boleta(self):
-            messagebox.showinfo("Generar Boleta", "Función no implementada aún")
-    
 
+    def generar_boleta(self):
+        # Obtener los productos y sus cantidades del Treeview
+        items = self.treeview_pedidos.get_children()
+        if not items:
+            messagebox.showwarning("advertencia", "no hay productos en el pedido para generar una boleta.")
+            return
+
+        boleta = "boleta de pedido:\n\n"
+        total = 0
+
+        for item in items:
+            producto, cantidad, precio_unitario = self.treeview_pedidos.item(item, "values")
+            cantidad = int(cantidad)
+            precio_unitario = int(precio_unitario)
+            subtotal = cantidad * precio_unitario
+            total += subtotal
+            boleta += f"{producto} x {cantidad} - ${subtotal}\n"
+
+        boleta += f"\nTotal: ${total}"
+        messagebox.showinfo("boleta de pedido", boleta)
 
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
