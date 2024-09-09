@@ -75,10 +75,12 @@ class Interfaz:
             if values[0] == producto:
                 cantidad_actual = int(values[1])
                 nueva_cantidad = cantidad_actual + 1
-                self.treeview_pedidos.item(item, values=(producto, nueva_cantidad, precio))      
+                nuevo_total = nueva_cantidad * precio
+                self.treeview_pedidos.item(item, values=(producto, nueva_cantidad, precio, nuevo_total))      
                 return
             
         cantidad = 1
+        total = cantidad * precio
         self.treeview_pedidos.insert("", "end", values=(producto, cantidad, precio))
         
     def crear_pedidos(self):
@@ -88,6 +90,7 @@ class Interfaz:
         frame_productos = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
         frame_productos.pack(pady=20)
         
+
         self.productos = {
             "Papas Fritas": ("icons/papas_fritas.png", 500),
             "completo": ("icons/completo.png", 1800),
@@ -117,21 +120,43 @@ class Interfaz:
                     command=lambda p=producto, pr=precio: self.agregar_producto(p, pr),
                 )
                 boton_productos.pack(side="left", padx=10, pady=10)
+                
             except Exception as e:
                 print(f"Error al cargar la imagen {img_file}: {e}")
         
                 
-        self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
+        self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario", "Total"), show="headings", height=8)   
         self.treeview_pedidos.heading("Producto", text="Producto")
         self.treeview_pedidos.heading("Cantidad", text="Cantidad")
         self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
+        self.treeview_pedidos.heading("Total", text="Total")
         self.treeview_pedidos.pack(pady=10, padx=10, fill= "both", expand=True)
+        
+        boton_generar_boleta = ctk.CTkButton(tab_pedidos, text="Generar Boleta", command=self.generar_boleta)
+        boton_generar_boleta.pack(pady=10)
+        
 
-        def generar_boleta(self):
-            messagebox.showinfo("Generar Boleta", "Función no implementada aún")
-    
-
-
+    def generar_boleta(self):
+        try:
+            contenido_boleta = ""
+            total_general = 0
+            
+            for item in self.treeview_pedidos.get_children():
+                producto, cantidad, precio_unitario, total = self.treeview_pedidos.item(item, "values")
+                try:
+                    cantidad = int(cantidad)
+                    precio_unitario = int(precio_unitario)
+                    total = int(total)
+                except ValueError:
+                    messagebox.showerror("Error", "Los valores en el Treeview no son numéricos válidos.")
+                    return
+                total_general += total
+                contenido_boleta += f"{producto} x{cantidad} ${precio_unitario} ${total}\n"
+            contenido_boleta += f"Total: ${total_general}"
+            messagebox.showinfo("Boleta", contenido_boleta)
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Se produjo un error al generar la boleta: {e}")
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
         cantidad = self.entry_cantidad.get()
