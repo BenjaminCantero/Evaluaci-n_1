@@ -135,10 +135,6 @@ class Interfaz:
         # Boton para eliminar pedido seleccionado
         boton_eliminar_seleccionado = ctk.CTkButton(tab_pedidos, text="Eliminar Pedido Seleccionado", command=self.eliminar_pedido_seleccionado)
         boton_eliminar_seleccionado.pack(pady=5)
-
-        # Boton para eliminar todos los pedidos
-        boton_eliminar_todos = ctk.CTkButton(tab_pedidos, text="Eliminar Todos los Pedidos", command=self.eliminar_todos_pedidos)
-        boton_eliminar_todos.pack(pady=5)
         
 
     def generar_boleta(self):
@@ -194,15 +190,6 @@ class Interfaz:
             return
 
         self.treeview_pedidos.delete(selected_item)
-
-    def eliminar_todos_pedidos(self):
-        if not self.treeview_pedidos.get_children():
-            messagebox.showwarning("Advertencia", "No hay pedidos para eliminar.")
-            return
-
-        confirm = messagebox.askyesno("Confirmar", "¿Estás seguro de que deseas eliminar todos los pedidos?")
-        if confirm:
-            self.treeview_pedidos.delete(*self.treeview_pedidos.get_children())
 
     def generar_menu(self):
         # Diccionario de recetas predefinidas con los ingredientes necesarios
