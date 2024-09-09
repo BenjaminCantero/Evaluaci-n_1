@@ -158,4 +158,46 @@ class Interfaz:
         self.treeview_ingredientes.delete(selected_item)
 
     def generar_menu(self):
-        messagebox.showinfo("Generar Menú", "Función no implementada aún")
+        # Diccionario de recetas predefinidas con los ingredientes necesarios
+        recetas = {
+            "ensalada cesar": ["lechuga", "pollo", "queso parmesano", "crutones"],
+            "sandwich de jamon y queso": ["pan", "jamon", "queso", "mantequilla"],
+            "tacos de carne": ["tortillas", "carne", "cebolla", "tomate"],
+            "pizza margarita": ["harina", "tomate", "queso", "albahaca"],
+            "hamburguesa clasica": ["pan de hamburguesa", "carne", "lechuga", "tomate", "queso"],
+            "spaghetti a la boloñesa": ["spaghetti", "carne", "tomate", "cebolla", "ajo"],
+        }
+
+        # Obtener los ingredientes disponibles en el inventario
+        ingredientes_disponibles = set()
+        for item in self.treeview_ingredientes.get_children():
+            nombre, _ = self.treeview_ingredientes.item(item, "values")
+            ingredientes_disponibles.add(nombre.lower())
+
+        if not ingredientes_disponibles:
+            messagebox.showwarning("advertencia", "no hay ingredientes disponibles para generar un menu.")
+            return
+
+        # Generar menu en base a las recetas y los ingredientes disponibles
+        menu = "menu generado:\n\n"
+        recetas_completas = False
+        
+        for plato, ingredientes_necesarios in recetas.items():
+            # Comprobar si todos los ingredientes necesarios estan en el inventario
+            if all(ingrediente in ingredientes_disponibles for ingrediente in ingredientes_necesarios):
+                recetas_completas = True
+                menu += f"receta completa: {plato} - ingredientes: {', '.join(ingredientes_necesarios)}\n"
+
+        if not recetas_completas:
+            # Si no hay recetas completas mostrar recetas con al menos un ingrediente disponible
+            recetas_parciales = False
+            for plato, ingredientes_necesarios in recetas.items():
+                if any(ingrediente in ingredientes_disponibles for ingrediente in ingredientes_necesarios):
+                    recetas_parciales = True
+                    menu += f"receta parcial: {plato} - ingredientes necesarios: {', '.join(ingredientes_necesarios)}\n"
+
+            if not recetas_parciales:
+                menu = "no hay ingredientes disponibles para sugerir ningun plato."
+
+        messagebox.showinfo("menu generado", menu)
+
