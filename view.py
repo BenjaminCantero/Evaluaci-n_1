@@ -1,9 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk
-import gestor
-import validaciones
-import utils
-import models
+from PIL import Image, ImageTk, ImageOps
+
 
 class Interfaz:
     def __init__(self, controlador):
@@ -18,7 +16,7 @@ class Interfaz:
         
         # Crear las pestañas
         self.crear_pestana_ingredientes()
-        self.crear_pestana_pedidos()
+        self.crear_pedidos()
 
         # Iniciar el loop de la interfaz gráfica
         self.root.mainloop()
@@ -70,53 +68,69 @@ class Interfaz:
         # Botón para generar menú
         boton_generar_menu = ctk.CTkButton(frame_derecho, text="Generar Menú", command=self.generar_menu)
         boton_generar_menu.pack(pady=10)
-
-    def crear_pestana_pedidos(self):
-        # Pestaña de Pedido
+        
+    def agregar_producto(self, producto, precio):
+        for item in self.treeview_pedidos.get_children():
+            values = self.treeview_pedidos.item(item, "values")
+            if values[0] == producto:
+                cantidad_actual = int(values[1])
+                nueva_cantidad = cantidad_actual + 1
+                self.treeview_pedidos.item(item, values=(producto, nueva_cantidad, precio))      
+                return
+            
+        cantidad = 1
+        self.treeview_pedidos.insert("", "end", values=(producto, cantidad, precio))
+        
+    def crear_pedidos(self):
         tab_pedidos = self.tab_control.add("Pedido")
         
-        # Frame superior para los productos
-        frame_superior = ctk.CTkFrame(tab_pedidos)
-        frame_superior.pack(pady=10, padx=10)
-
-        # Botones de productos con imágenes (puedes asignar las imágenes que desees)
-        boton_papas_fritas = ctk.CTkButton(frame_superior, text="Papas Fritas", command=lambda: self.agregar_pedido("Papas Fritas", 1.5))  # Precio ejemplo
-        boton_papas_fritas.grid(row=0, column=0, padx=10, pady=10)
-
-        boton_completo = ctk.CTkButton(frame_superior, text="Completo", command=lambda: self.agregar_pedido("Completo", 2.0))
-        boton_completo.grid(row=0, column=1, padx=10, pady=10)
-
-        boton_pepsi = ctk.CTkButton(frame_superior, text="Pepsi", command=lambda: self.agregar_pedido("Pepsi", 1.0))
-        boton_pepsi.grid(row=0, column=2, padx=10, pady=10)
-
-        boton_hamburguesa = ctk.CTkButton(frame_superior, text="Hamburguesa", command=lambda: self.agregar_pedido("Hamburguesa", 2.5))
-        boton_hamburguesa.grid(row=0, column=3, padx=10, pady=10)
-
-        # Frame inferior para la lista de pedidos y botones de acción
-        frame_inferior = ctk.CTkFrame(tab_pedidos)
-        frame_inferior.pack(pady=10, padx=10, fill="both", expand=True)
-
-        # Tabla de pedidos (Treeview)
-        self.treeview_pedidos = ttk.Treeview(frame_inferior, columns=("Nombre del Menú", "Cantidad", "Precio Unitario"), show="headings", height=10)
-        self.treeview_pedidos.heading("Nombre del Menú", text="Nombre del Menú")
+        
+        frame_productos = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
+        frame_productos.pack(pady=20)
+        
+        self.productos = {
+            "Papas Fritas": ("icons/papas_fritas.png", 500),
+            "completo": ("icons/completo.png", 1800),
+            "hamburguesa": ("icons/hamburguesa.png", 3500),
+            "pepsi": ("icons/pepsi.png", 1100),
+        }
+        
+        
+        self.imagenes_productos = {}
+        for producto, (img_file, precio) in self.productos.items():
+            try:
+                pill_image = Image.open(img_file).convert("RGBA")
+                background = Image.new('RGBA', pill_image.size, (0, 0, 0, 0))
+                imagen_transparente = Image.alpha_composite(background, pill_image)               
+                imagen_borde = ImageOps.expand(imagen_transparente, border=1, fill="red")
+                imagen = ImageTk.PhotoImage(imagen_borde)
+                
+                self.imagenes_productos[producto] = imagen
+            
+            # Crear el botón de producto con la imagen
+                boton_productos = ctk.CTkButton(
+                    frame_productos,
+                    image=imagen,
+                    text=f"{producto}",
+                    compound="top",
+                    fg_color="transparent",  # Establecer color de fondo transparente
+                    command=lambda p=producto, pr=precio: self.agregar_producto(p, pr),
+                )
+                boton_productos.pack(side="left", padx=10, pady=10)
+            except Exception as e:
+                print(f"Error al cargar la imagen {img_file}: {e}")
+        
+                
+        self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
+        self.treeview_pedidos.heading("Producto", text="Producto")
         self.treeview_pedidos.heading("Cantidad", text="Cantidad")
         self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
-        self.treeview_pedidos.column("Nombre del Menú", width=150, anchor="center")
-        self.treeview_pedidos.column("Cantidad", width=80, anchor="center")
-        self.treeview_pedidos.column("Precio Unitario", width=100, anchor="center")
-        self.treeview_pedidos.pack(pady=10, padx=10, fill="both", expand=True)
+        self.treeview_pedidos.pack(pady=10, padx=10, fill= "both", expand=True)
 
-        # Label para mostrar el total
-        self.label_total = ctk.CTkLabel(frame_inferior, text="Total: $0.00")
-        self.label_total.pack(anchor="e", padx=20, pady=10)
+        def generar_boleta(self):
+            messagebox.showinfo("Generar Boleta", "Función no implementada aún")
+    
 
-        # Botón para eliminar un menú
-        boton_eliminar_menu = ctk.CTkButton(frame_inferior, text="Eliminar Menú", command=self.eliminar_menu)
-        boton_eliminar_menu.pack(side="left", padx=20)
-
-        # Botón para generar boleta
-        boton_generar_boleta = ctk.CTkButton(frame_inferior, text="Generar Boleta", command=self.generar_boleta)
-        boton_generar_boleta.pack(side="right", padx=20)
 
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
