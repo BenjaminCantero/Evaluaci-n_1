@@ -205,6 +205,12 @@ class Interfaz:
             "total": 0
         }
 
+        # Verificar si hay datos en el Treeview
+        if not self.treeview_pedidos.get_children():
+            messagebox.showerror("Error", "No hay datos para generar la boleta.")
+            return
+
+        # Recopilar los ítems del pedido
         for item in self.treeview_pedidos.get_children():
             values = self.treeview_pedidos.item(item, "values")
             producto = values[0]
@@ -221,6 +227,10 @@ class Interfaz:
         
         # Llamar a la función de generar el PDF con los detalles del pedido actual
         generar_boleta(pedido_actual)
+        
+        # Mostrar mensaje de éxito
+        messagebox.showinfo("Éxito", "La boleta se ha generado con éxito.")
+
 
 
     def ingresar_ingrediente(self):
@@ -249,8 +259,11 @@ class Interfaz:
 
     def eliminar_ingrediente(self):
         seleccionado = self.treeview_ingredientes.selection()
-        if seleccionado:
-            self.treeview_ingredientes.delete(seleccionado)
+        if not seleccionado:  # Verificar si no se ha seleccionado ningún ingrediente
+            messagebox.showerror("Error", "No se ha seleccionado ningún ingrediente para eliminar.")
+            return
+        
+        self.treeview_ingredientes.delete(seleccionado)
     
     def generar_menu(self):
         # Recuperar todos los ingredientes de la lista
