@@ -126,14 +126,14 @@ class Interfaz:
         # Frame para contener los botones y el total
         frame_botones = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
         frame_botones.pack(pady=10, fill="x")
-
-        # Label del monto total
-        self.label_total = ctk.CTkLabel(frame_botones, text="Total: $0.00", anchor="e")
-        self.label_total.pack(side="right", padx=10)
         
         # Botón para eliminar menú
         boton_eliminar_pedido = ctk.CTkButton(frame_botones, text="Eliminar Menú", command=self.eliminar_pedido)
         boton_eliminar_pedido.pack(side="right", padx=10)
+
+        # Label del monto total
+        self.label_total = ctk.CTkLabel(frame_botones, text="Total: $0.00", anchor="e")
+        self.label_total.pack(side="right", padx=10)
 
         # Treeview de pedidos
         self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
