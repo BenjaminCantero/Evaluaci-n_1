@@ -22,3 +22,5 @@ def validar_cantidad(cantidad):
         return None  # Cantidad válida, sin errores
     except ValueError:
         return "Error: La cantidad debe ser un número entero válido."
+def validar_nombre_ingrediente(nombre):
+    return validar_nombre(nombre)

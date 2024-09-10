@@ -33,6 +33,3 @@ class Controlador:
 
     def generar_menus_disponibles(self):
         return self.gestor.generar_menus_disponibles()
-
-    def generar_boleta(self, pedido_actual):
-        utils.importar_boleta_desde_pdf(pedido_actual)  
