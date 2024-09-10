@@ -160,7 +160,7 @@ class Interfaz:
             imagen = ImageOps.expand(imagen_original, border=1, fill=color)
             imagen_tk = ImageTk.PhotoImage(imagen)
             boton.configure(image=imagen_tk)
-            boton.image = imagen_tk  # Guardar la referencia de la imagen para evitar que sea recolectada por el GC
+            boton.image = imagen_tk 
 
     def agregar_producto(self, producto, precio):
         for item in self.treeview_pedidos.get_children():
@@ -189,10 +189,9 @@ class Interfaz:
         for item in self.treeview_pedidos.get_children():
             values = self.treeview_pedidos.item(item, "values")
             try:
-                # Convertir el valor de la columna "Total" a float antes de sumarlo
-                total += float(values[3])  # Total en la columna de "Total"
+                
+                total += float(values[3])  
             except ValueError:
-                # Manejar el caso en que el valor no pueda ser convertido a float
                 print(f"Advertencia: El valor en la columna 'Total' no es un número válido: {values[3]}")
         self.label_total.configure(text=f"Total: ${total:.2f}")
 

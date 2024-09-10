@@ -5,7 +5,7 @@ import utils
 class Controlador:
     def __init__(self):
         self.gestor = Gestor()
-        self.ingredientes = []  # Lista para almacenar ingredientes si es necesario
+        self.ingredientes = [] 
 
     def agregar_ingrediente(self, nombre, cantidad):
         if validaciones.validar_nombre(nombre) and validaciones.validar_cantidad(cantidad):
@@ -29,11 +29,10 @@ class Controlador:
         self.gestor.eliminar_menu(menu)
 
     def eliminar_ingrediente(self, nombre):
-        # Elimina un ingrediente a través del gestor
         self.gestor.eliminar_ingrediente(nombre)
 
     def generar_menus_disponibles(self):
         return self.gestor.generar_menus_disponibles()
 
     def generar_boleta(self, pedido_actual):
-        utils.importar_boleta_desde_pdf(pedido_actual)  # Función que importará el PDF
+        utils.importar_boleta_desde_pdf(pedido_actual)  
