@@ -1,6 +1,6 @@
 from gestor import Gestor
 import validaciones
-import utils
+from utils import generar_boleta
 
 class Controlador:
     def __init__(self):

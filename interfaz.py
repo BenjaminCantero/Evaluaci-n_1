@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk, ImageOps
 import validaciones as val
+from utils import generar_boleta
 
 class Interfaz:
     def __init__(self, controlador):
@@ -180,9 +181,12 @@ class Interfaz:
     
     def eliminar_pedido(self):
         seleccionado = self.treeview_pedidos.selection()
-        if seleccionado:
-            self.treeview_pedidos.delete(seleccionado)
-            self.actualizar_total()
+        if not seleccionado:
+            messagebox.showerror("Error", "No hay ningún producto seleccionado para eliminar.")
+            return
+
+        self.treeview_pedidos.delete(seleccionado)
+        self.actualizar_total()
 
     def actualizar_total(self):
         total = 0
@@ -196,8 +200,28 @@ class Interfaz:
         self.label_total.configure(text=f"Total: ${total:.2f}")
 
     def generar_boleta(self):
-        # Implementar generación de boleta
-        pass
+        pedido_actual = {
+            "items": [],
+            "total": 0
+        }
+
+        for item in self.treeview_pedidos.get_children():
+            values = self.treeview_pedidos.item(item, "values")
+            producto = values[0]
+            cantidad = int(values[1])
+            precio_unitario = float(values[2])
+            subtotal = float(values[3])
+            
+            # Añadir cada ítem al pedido actual
+            pedido_actual["items"].append((producto, cantidad, precio_unitario, subtotal))
+        
+        # Calcular el total del pedido
+        total = sum([float(self.treeview_pedidos.item(item, "values")[3]) for item in self.treeview_pedidos.get_children()])
+        pedido_actual["total"] = total
+        
+        # Llamar a la función de generar el PDF con los detalles del pedido actual
+        generar_boleta(pedido_actual)
+
 
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
