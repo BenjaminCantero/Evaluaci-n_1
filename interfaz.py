@@ -180,9 +180,12 @@ class Interfaz:
     
     def eliminar_pedido(self):
         seleccionado = self.treeview_pedidos.selection()
-        if seleccionado:
-            self.treeview_pedidos.delete(seleccionado)
-            self.actualizar_total()
+        if not seleccionado:
+            messagebox.showerror("Error", "No hay ningún producto seleccionado para eliminar.")
+            return
+        
+        self.treeview_pedidos.delete(seleccionado)
+        self.actualizar_total()
 
     def actualizar_total(self):
         total = 0
