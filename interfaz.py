@@ -18,6 +18,9 @@ class Interfaz:
         self.crear_pestana_ingredientes()
         self.crear_pedidos()
 
+        # Lista para guardar ingredientes
+        self.ingredientes_guardados = []
+
         # Iniciar el loop de la interfaz gráfica
         self.root.mainloop()
 
@@ -49,7 +52,7 @@ class Interfaz:
         boton_ingresar = ctk.CTkButton(frame_izquierdo, text="Ingresar Ingrediente", command=self.ingresar_ingrediente)
         boton_ingresar.pack(pady=10)
 
-        # Frame derecho para la lista de ingredientes y el botón de generar menú
+        # Frame derecho para la lista de ingredientes y los botones
         frame_derecho = ctk.CTkFrame(tab_ingredientes)
         frame_derecho.pack(side="right", padx=10, pady=10, fill="y", expand=True)
 
@@ -64,6 +67,10 @@ class Interfaz:
         self.treeview_ingredientes.column("Nombre", width=150, anchor="center")
         self.treeview_ingredientes.column("Cantidad", width=150, anchor="center")
         self.treeview_ingredientes.pack(pady=10, padx=10, fill="both", expand=True)
+
+        # Botón para generar menú
+        boton_generar_menu = ctk.CTkButton(frame_derecho, text="Generar Menú", command=self.generar_menu)
+        boton_generar_menu.pack(pady=10)
 
     def crear_pedidos(self):
         tab_pedidos = self.tab_control.add("Pedido")
@@ -190,3 +197,23 @@ class Interfaz:
         seleccionado = self.treeview_ingredientes.selection()
         if seleccionado:
             self.treeview_ingredientes.delete(seleccionado)
+    
+    def generar_menu(self):
+        # Recuperar todos los ingredientes de la lista
+        ingredientes = []
+        for item in self.treeview_ingredientes.get_children():
+            values = self.treeview_ingredientes.item(item, "values")
+            nombre = values[0]
+            cantidad = values[1]
+            ingredientes.append((nombre, cantidad))
+        
+        # Verificar si hay ingredientes
+        if not ingredientes:
+            messagebox.showerror("Error", "No hay ingredientes disponibles para generar el menú.")
+            return
+        
+        # Guardar los ingredientes para usarlos posteriormente
+        self.ingredientes_guardados = ingredientes
+        
+        # Mostrar mensaje de éxito
+        messagebox.showinfo("Éxito", "Ingredientes guardados en la lista de ingredientes guardados.")
