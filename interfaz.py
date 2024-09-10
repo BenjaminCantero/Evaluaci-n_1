@@ -2,7 +2,8 @@ import customtkinter as ctk
 from tkinter import ttk
 from PIL import Image, ImageTk, ImageOps
 from tkinter import messagebox
-
+from utils import generar_boleta
+from datetime import datetime
 class Interfaz:
     def __init__(self, controlador):
         self.controlador = controlador
@@ -145,6 +146,7 @@ class Interfaz:
         total = cantidad * precio
         self.treeview_pedidos.insert("", "end", values=(producto, cantidad, precio, total))
         self.actualizar_total()
+        
     
     def eliminar_pedido(self):
         seleccionado = self.treeview_pedidos.selection()
@@ -176,17 +178,31 @@ class Interfaz:
             # Actualiza la interfaz
             self.actualizar_treeview_ingredientes()
 
-    def generar_menu(self):
-        # Lógica para generar un menú
-        pass
-
     def generar_boleta(self):
-        self.controlador.generar_boleta()
+        # Obtener los datos del pedido desde el Treeview
+        datos_pedido = []
+        for item in self.treeview_pedidos.get_children():
+            values = self.treeview_pedidos.item(item, "values")
+            datos_pedido.append((values[0], int(values[1]), float(values[2]), float(values[3])))
+
+        # Calcular el total del pedido
+        total = sum(float(self.treeview_pedidos.item(item, "values")[3]) for item in self.treeview_pedidos.get_children())
+
+        # Crear un diccionario o lista con el pedido actual
+        pedido_actual = {
+            "items": datos_pedido,
+            "total": total,
+            "fecha": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        }
         
+        # Llamar a la función generar_boleta desde utils.py
+        generar_boleta(pedido_actual)
+
+
     def actualizar_treeview_ingredientes(self):
         # Limpia el Treeview
         for item in self.treeview_ingredientes.get_children():
             self.treeview_ingredientes.delete(item)
         # Inserta los datos desde el controlador
         for ingrediente in self.controlador.obtener_ingredientes():
-            self.treeview_ingredientes.insert("", "end", values=(ingrediente[0], ingrediente[1])) 
+            self.treeview_ingredientes.insert("", "end", values=(ingrediente[0], ingrediente[1]))
