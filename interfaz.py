@@ -74,10 +74,11 @@ class Interfaz:
 
     def crear_pedidos(self):
         tab_pedidos = self.tab_control.add("Pedido")
-        
+
+        # Frame para productos e imágenes
         frame_productos = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
-        frame_productos.pack(pady=20)
-        
+        frame_productos.pack(pady=20, fill="y")  # Mover productos hacia abajo
+
         # Lista de productos e imágenes
         self.productos = {
             "Papas Fritas": ("icons/papas_fritas.png", 500),
@@ -86,20 +87,23 @@ class Interfaz:
             "Pepsi": ("icons/pepsi.png", 1100),
         }
         self.imagenes_productos = {}
+        self.imagenes_originales = {}  # Guardar imágenes originales
         row, column = 0, 0
         for producto, (img_file, precio) in self.productos.items():
             try:
-                pill_image = Image.open(img_file).convert("RGBA")
-                background = Image.new('RGBA', pill_image.size, (0, 0, 0, 0))
-                imagen_transparente = Image.alpha_composite(background, pill_image)
-                imagen_borde = ImageOps.expand(imagen_transparente, border=1, fill="red")
-                imagen = ImageTk.PhotoImage(imagen_borde)
+                # Cargar imagen original
+                imagen_original = Image.open(img_file).convert("RGBA")
+                self.imagenes_originales[producto] = imagen_original
                 
-                self.imagenes_productos[producto] = imagen
+                # Crear imagen con borde verde
+                imagen_con_borde = ImageOps.expand(imagen_original, border=1, fill="green")
+                imagen_tk = ImageTk.PhotoImage(imagen_con_borde)
+                
+                self.imagenes_productos[producto] = imagen_tk
                 
                 boton_productos = ctk.CTkButton(
                     frame_productos,
-                    image=imagen,
+                    image=imagen_tk,
                     text=f"{producto}",
                     compound="top",
                     fg_color="transparent",  # Fondo transparente
@@ -107,6 +111,10 @@ class Interfaz:
                 )
                 boton_productos.grid(row=row, column=column, padx=10, pady=10)
                 
+                # Agregar eventos de entrada y salida para cambiar el color del borde
+                boton_productos.bind("<Enter>", lambda e, btn=boton_productos: self.cambiar_color_borde(btn, "red"))
+                boton_productos.bind("<Leave>", lambda e, btn=boton_productos: self.cambiar_color_borde(btn, "green"))
+
                 column += 1
                 if column > 1:
                     column = 0
@@ -121,19 +129,38 @@ class Interfaz:
 
         # Label del monto total
         self.label_total = ctk.CTkLabel(frame_botones, text="Total: $0.00", anchor="e")
-        self.label_total.pack(side="right", padx=10)              
+        self.label_total.pack(side="right", padx=10)
+        
         # Botón para eliminar menú
         boton_eliminar_pedido = ctk.CTkButton(frame_botones, text="Eliminar Menú", command=self.eliminar_pedido)
         boton_eliminar_pedido.pack(side="right", padx=10)
+
+        # Treeview de pedidos
         self.treeview_pedidos = ttk.Treeview(tab_pedidos, columns=("Producto", "Cantidad", "Precio Unitario"), show="headings", height=8)   
         self.treeview_pedidos.heading("Producto", text="Producto")
         self.treeview_pedidos.heading("Cantidad", text="Cantidad")
         self.treeview_pedidos.heading("Precio Unitario", text="Precio Unitario")
         self.treeview_pedidos.pack(pady=10, padx=10, fill="both", expand=True)
 
+        # Frame para contener el botón de generar boleta
+        frame_boton_generar = ctk.CTkFrame(tab_pedidos, fg_color="transparent")
+        frame_boton_generar.pack(side="bottom", pady=10, fill="x")
+
         # Botón para generar boleta
-        boton_generar_boleta = ctk.CTkButton(frame_botones, text="Generar Boleta", command=self.generar_boleta)
-        boton_generar_boleta.pack(side="right", padx=10)
+        boton_generar_boleta = ctk.CTkButton(frame_boton_generar, text="Generar Boleta", command=self.generar_boleta)
+        boton_generar_boleta.pack(pady=10, side="bottom")  # Centramos el botón en el frame
+
+
+    def cambiar_color_borde(self, boton, color):
+        producto = boton.cget("text")
+        imagen_original = self.imagenes_originales.get(producto)
+        
+        if imagen_original:
+            # Cambiar el borde de la imagen
+            imagen = ImageOps.expand(imagen_original, border=1, fill=color)
+            imagen_tk = ImageTk.PhotoImage(imagen)
+            boton.configure(image=imagen_tk)
+            boton.image = imagen_tk  # Guardar la referencia de la imagen para evitar que sea recolectada por el GC
 
     def agregar_producto(self, producto, precio):
         for item in self.treeview_pedidos.get_children():
@@ -160,19 +187,23 @@ class Interfaz:
     def actualizar_total(self):
         total = 0
         for item in self.treeview_pedidos.get_children():
-            total += float(self.treeview_pedidos.item(item, "values")[3])
+            values = self.treeview_pedidos.item(item, "values")
+            try:
+                # Convertir el valor de la columna "Total" a float antes de sumarlo
+                total += float(values[3])  # Total en la columna de "Total"
+            except ValueError:
+                # Manejar el caso en que el valor no pueda ser convertido a float
+                print(f"Advertencia: El valor en la columna 'Total' no es un número válido: {values[3]}")
         self.label_total.configure(text=f"Total: ${total:.2f}")
 
     def generar_boleta(self):
-        # Código para generar boleta
+        # Implementar generación de boleta
         pass
 
     def ingresar_ingrediente(self):
         nombre = self.entry_nombre.get()
         cantidad = self.entry_cantidad.get()
-        
-        # Validar datos
-        resultado_validacion_nombre = val.validar_nombre(nombre)
+        resultado_validacion_nombre = val.validar_nombre_ingrediente(nombre)
         resultado_validacion_cantidad = val.validar_cantidad(cantidad)
         
         if resultado_validacion_nombre:
